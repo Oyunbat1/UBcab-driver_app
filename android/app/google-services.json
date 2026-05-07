@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "566599100108",
+    "project_id": "ubcab-app",
+    "storage_bucket": "ubcab-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:566599100108:android:9dc5b87fd6f4b44e168469",
+        "android_client_info": {
+          "package_name": "com.example.driver_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "566599100108-79hdbbr2m0vk7h2pdgpdahe14b6vv8lj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBT1NJrVOaj_zKzC0FYa1r_oohLKms0_84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "566599100108-79hdbbr2m0vk7h2pdgpdahe14b6vv8lj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "566599100108-jinqnpdpq20939s8456or958un9sqcnk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.riderApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:566599100108:android:e61aa5b3febaec2d168469",
+        "android_client_info": {
+          "package_name": "com.example.rider_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "566599100108-79hdbbr2m0vk7h2pdgpdahe14b6vv8lj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBT1NJrVOaj_zKzC0FYa1r_oohLKms0_84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "566599100108-79hdbbr2m0vk7h2pdgpdahe14b6vv8lj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "566599100108-jinqnpdpq20939s8456or958un9sqcnk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.riderApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
