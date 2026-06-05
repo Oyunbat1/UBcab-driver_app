@@ -39,7 +39,7 @@ class SplashView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Driver Partner',
+              'Жолооч түнш',
               style: TextStyle(fontSize: 14, color: AppTheme.textTertiary),
             ),
             const SizedBox(height: 48),

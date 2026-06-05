@@ -11,15 +11,15 @@ class NavigationView extends StatelessWidget {
   String _statusTitle(TripStatus? status) {
     switch (status) {
       case TripStatus.accepted:
-        return 'Heading to pickup';
+        return 'Авах цэг рүү явж байна';
       case TripStatus.arriving:
-        return 'Arrived at pickup';
+        return 'Авах цэгт ирлээ';
       case TripStatus.inProgress:
-        return 'Trip in progress';
+        return 'Аялал үргэлжилж байна';
       case TripStatus.completed:
-        return 'Trip completed';
+        return 'Аялал дууслаа';
       default:
-        return 'Trip';
+        return 'Аялал';
     }
   }
 
@@ -58,7 +58,7 @@ class NavigationView extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      'Drive safely',
+                      'Болгоомжтой жолоодоорой',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.85),
                         fontSize: 12,
@@ -127,7 +127,7 @@ class NavigationView extends StatelessWidget {
                                 children: [
                                   Text(
                                     controller.state.riderName.value.isEmpty
-                                        ? 'Rider'
+                                        ? 'Зорчигч'
                                         : controller.state.riderName.value,
                                     style: const TextStyle(
                                         fontSize: 15,
@@ -162,7 +162,7 @@ class NavigationView extends StatelessWidget {
                             (trip['pickupAddress'] as String?)?.isNotEmpty ==
                                     true
                                 ? trip['pickupAddress']
-                                : 'Pickup',
+                                : 'Авах цэг',
                             style: TextStyle(
                                 fontSize: 12, color: Colors.grey.shade800),
                           ),
@@ -180,7 +180,7 @@ class NavigationView extends StatelessWidget {
                             (trip['dropoffAddress'] as String?)?.isNotEmpty ==
                                     true
                                 ? trip['dropoffAddress']
-                                : 'Dropoff',
+                                : 'Буух цэг',
                             style: TextStyle(
                                 fontSize: 12, color: Colors.grey.shade800),
                           ),
@@ -205,19 +205,19 @@ class NavigationView extends StatelessWidget {
     if (status == TripStatus.accepted) {
       return ElevatedButton(
         onPressed: controller.markArrived,
-        child: const Text("I've Arrived"),
+        child: const Text("Би ирлээ"),
       );
     }
     if (status == TripStatus.arriving) {
       return ElevatedButton(
         onPressed: controller.startTrip,
-        child: const Text('Start Trip'),
+        child: const Text('Аялал эхлүүлэх'),
       );
     }
     if (status == TripStatus.inProgress) {
       return ElevatedButton(
         onPressed: controller.completeTrip,
-        child: const Text('Complete Trip'),
+        child: const Text('Аялал дуусгах'),
       );
     }
     return const SizedBox(height: 52);

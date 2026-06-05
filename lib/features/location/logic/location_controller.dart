@@ -31,8 +31,8 @@ class LocationController extends GetxController {
       if (!hasPermission) {
         debugPrint('[LocationController] permission denied');
         Get.snackbar(
-          'Permission',
-          'Location permission is required to show the map',
+          'Зөвшөөрөл',
+          'Газрын зураг харуулахад байршлын зөвшөөрөл шаардлагатай',
           snackPosition: SnackPosition.TOP,
         );
         return;
@@ -45,7 +45,7 @@ class LocationController extends GetxController {
     } catch (e) {
       debugPrint('[LocationController] getCurrentLocation FAILED: $e');
       Get.snackbar(
-        'Location Error',
+        'Байршлын алдаа',
         e.toString(),
         snackPosition: SnackPosition.TOP,
       );

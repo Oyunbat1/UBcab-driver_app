@@ -27,7 +27,7 @@ class RiderProfileSheet extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
       child: Obx(() {
         final name = controller.state.riderName.value.isEmpty
-            ? 'Rider'
+            ? 'Зорчигч'
             : controller.state.riderName.value;
         final phone = controller.state.riderPhone.value;
         final rating = controller.state.riderRating.value;
@@ -72,8 +72,8 @@ class RiderProfileSheet extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _stat('${rating.toStringAsFixed(1)} ⭐', 'Rating'),
-                  _stat('$totalTrips', 'Trips'),
+                  _stat('${rating.toStringAsFixed(1)} ⭐', 'Үнэлгээ'),
+                  _stat('$totalTrips', 'Аялал'),
                 ],
               ),
             ),
@@ -87,20 +87,20 @@ class RiderProfileSheet extends StatelessWidget {
                         : () {
 
                             Get.snackbar(
-                              'Call',
+                              'Залгах',
                               'Dialing $phone (placeholder)',
                               snackPosition: SnackPosition.TOP,
                             );
                           },
                     icon: const Icon(Icons.call, size: 16),
-                    label: const Text('Call'),
+                    label: const Text('Залгах'),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Close'),
+                    child: const Text('Хаах'),
                   ),
                 ),
               ],

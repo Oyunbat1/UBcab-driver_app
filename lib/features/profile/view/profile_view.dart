@@ -25,7 +25,7 @@ class ProfileView extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          'Profile',
+          'Профайл',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -47,7 +47,7 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   controller.state.name.value.isEmpty
-                      ? 'Driver'
+                      ? 'Жолооч'
                       : controller.state.name.value,
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.w700),
@@ -77,13 +77,13 @@ class ProfileView extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _statItem('${controller.state.totalTrips.value}', 'Trips'),
+                      _statItem('${controller.state.totalTrips.value}', 'Аялал'),
                       _statItem(
                           '⭐ ${controller.state.rating.value.toStringAsFixed(1)}',
-                          'Rating'),
+                          'Үнэлгээ'),
                       _statItem(
                           '₮ ${_formatCurrency(controller.state.totalEarnings.value)}',
-                          'Earned'),
+                          'Олсон'),
                     ],
                   ),
                 ),
@@ -104,19 +104,19 @@ class ProfileView extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _menuItem(Icons.person, 'Edit Profile'),
+                      _menuItem(Icons.person, 'Профайл засах'),
                       _divider(),
-                      _menuItem(Icons.directions_car, 'Vehicle Info'),
+                      _menuItem(Icons.directions_car, 'Машины мэдээлэл'),
                       _divider(),
-                      _menuItem(Icons.history, 'Trip History'),
+                      _menuItem(Icons.history, 'Аяллын түүх'),
                       _divider(),
-                      _menuItem(Icons.account_balance_wallet, 'Earnings'),
+                      _menuItem(Icons.account_balance_wallet, 'Орлого'),
                       _divider(),
-                      _menuItem(Icons.notifications, 'Notifications'),
+                      _menuItem(Icons.notifications, 'Мэдэгдэл'),
                       _divider(),
-                      _menuItem(Icons.settings, 'Settings'),
+                      _menuItem(Icons.settings, 'Тохиргоо'),
                       _divider(),
-                      _menuItem(Icons.help_outline, 'Help & Support'),
+                      _menuItem(Icons.help_outline, 'Тусламж & Дэмжлэг'),
                     ],
                   ),
                 ),

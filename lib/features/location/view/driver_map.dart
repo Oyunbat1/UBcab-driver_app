@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:driver_app/core/theme/app_theme.dart';
+import 'package:driver_app/core/services/directions_service.dart';
 import 'package:driver_app/features/location/logic/location_controller.dart';
 import 'package:driver_app/features/trip/suite/trip_suite.dart';
 
@@ -27,10 +28,43 @@ class _DriverMapState extends State<DriverMap> {
 
   bool _initialCameraSet = false;
 
+  /// Бодит замыг (road route) Directions API-аар татна.
+  final _directions = DirectionsService();
+
+  /// Татаж авсан замын цэгүүд (reactive - ирэхэд polyline дахин зурагдана).
+  final _routePoints = <LatLng>[].obs;
+
+  /// Сүүлд татсан замын key - ижил origin/dest/segment дээр дахин татахгүй.
+  String? _routeKey;
+
   @override
   void dispose() {
     _mapController?.dispose();
     super.dispose();
+  }
+
+  /// Шаардлагатай үед (key өөрчлөгдсөн) замыг шинээр татна.
+  /// Жолоочийн байршил ~110м-ээс бага хөдөлсөн бол key өөрчлөгдөхгүй тул
+  /// Directions дуудлага хэт олон удаа явахгүй (cost хязгаарлана).
+  void _maybeFetchRoute(LatLng origin, LatLng dest, String segId) {
+    final key = '$segId:'
+        '${origin.latitude.toStringAsFixed(3)},${origin.longitude.toStringAsFixed(3)}'
+        '->${dest.latitude.toStringAsFixed(4)},${dest.longitude.toStringAsFixed(4)}';
+    if (key == _routeKey) return;
+    _routeKey = key;
+
+    _directions.getRoute(origin, dest).then((route) {
+      if (!mounted) return;
+      // Хариу ирэх зуур key дахин өөрчлөгдсөн бол хуучин хариуг хаяна.
+      if (key != _routeKey) return;
+      _routePoints.assignAll(route?.points ?? const []);
+    });
+  }
+
+  /// Идэвхтэй segment байхгүй бол замыг цэвэрлэнэ.
+  void _clearRoute() {
+    _routeKey = null;
+    if (_routePoints.isNotEmpty) _routePoints.clear();
   }
 
   Future<void> _animateTo(double lat, double lng) async {
@@ -50,9 +84,6 @@ class _DriverMapState extends State<DriverMap> {
     return Obx(() {
       final pos = locationController.state.currentPosition.value;
       final loading = locationController.state.isLoading.value;
-      const fallbackUB = LatLng(47.9184, 106.9177);
-      final target = pos == null ? fallbackUB : LatLng(pos.latitude, pos.longitude);
-
       if (pos == null) {
         debugPrint(
             '[DriverMap] no position yet (loading=$loading) — showing fallback UI');
@@ -72,7 +103,7 @@ class _DriverMapState extends State<DriverMap> {
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 32),
                     child: Text(
-                      'Could not get location.\nMake sure location services are enabled and permission granted.',
+                      'Байршил тогтоож чадсангүй.\nБайршлын үйлчилгээ болон зөвшөөрлийг шалгана уу.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 13, color: AppTheme.textSecondary),
@@ -82,7 +113,7 @@ class _DriverMapState extends State<DriverMap> {
                   ElevatedButton.icon(
                     onPressed: locationController.getCurrentLocation,
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Retry'),
+                    label: const Text('Дахин оролдох'),
                   ),
                 ],
               ],
@@ -107,12 +138,25 @@ class _DriverMapState extends State<DriverMap> {
         trip: activeTrip,
       );
 
-      final polylines = _buildPolylines(
-        driverLat: pos.latitude,
-        driverLng: pos.longitude,
+      // Идэвхтэй segment-ийг тодорхойлно (accepted->pickup, inProgress->dropoff).
+      final segment = _activeSegment(
+        driver: LatLng(pos.latitude, pos.longitude),
         trip: activeTrip,
         status: tripStatus,
       );
+
+      // Build хийх явцад Rx-ийг мутац хийхгүйн тулд замын fetch/clear-ийг
+      // frame-ийн дараа товлоно.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (segment == null) {
+          _clearRoute();
+        } else {
+          _maybeFetchRoute(segment.origin, segment.dest, segment.id);
+        }
+      });
+
+      final polylines = _buildPolylines(segment);
 
       return GoogleMap(
         initialCameraPosition: CameraPosition(
@@ -162,7 +206,7 @@ class _DriverMapState extends State<DriverMap> {
           icon:
               BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
           infoWindow: InfoWindow(
-            title: 'Pickup',
+            title: 'Авах цэг',
             snippet: trip['pickupAddress'] as String?,
           ),
         ),
@@ -177,7 +221,7 @@ class _DriverMapState extends State<DriverMap> {
           position: LatLng(dropoff.latitude, dropoff.longitude),
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
           infoWindow: InfoWindow(
-            title: 'Dropoff',
+            title: 'Буух цэг',
             snippet: trip['dropoffAddress'] as String?,
           ),
         ),
@@ -187,47 +231,70 @@ class _DriverMapState extends State<DriverMap> {
     return markers;
   }
 
-  Set<Polyline> _buildPolylines({
-    required double driverLat,
-    required double driverLng,
+  /// Одоогийн trip status-аас хамаарч идэвхтэй замын segment-ийг буцаана.
+  /// accepted -> жолооч → авах цэг, inProgress -> жолооч → буух цэг.
+  _Segment? _activeSegment({
+    required LatLng driver,
     Map<String, dynamic>? trip,
     TripStatus? status,
   }) {
-    if (trip == null) return {};
+    if (trip == null) return null;
 
     final pickup = trip['pickup'];
     final dropoff = trip['dropoff'];
 
     if (status == TripStatus.accepted && pickup is GeoPoint) {
-      return {
-        Polyline(
-          polylineId: const PolylineId('to-pickup'),
-          points: [
-            LatLng(driverLat, driverLng),
-            LatLng(pickup.latitude, pickup.longitude),
-          ],
-          color: AppTheme.primaryColor,
-          width: 4,
-          geodesic: true,
-        ),
-      };
+      return _Segment(
+        id: 'to-pickup',
+        origin: driver,
+        dest: LatLng(pickup.latitude, pickup.longitude),
+        color: AppTheme.primaryColor,
+      );
     }
-
     if (status == TripStatus.inProgress && dropoff is GeoPoint) {
-      return {
-        Polyline(
-          polylineId: const PolylineId('to-dropoff'),
-          points: [
-            LatLng(driverLat, driverLng),
-            LatLng(dropoff.latitude, dropoff.longitude),
-          ],
-          color: Colors.red.shade600,
-          width: 4,
-          geodesic: true,
-        ),
-      };
+      return _Segment(
+        id: 'to-dropoff',
+        origin: driver,
+        dest: LatLng(dropoff.latitude, dropoff.longitude),
+        color: Colors.red.shade600,
+      );
     }
-
-    return {};
+    return null;
   }
+
+  /// Замыг зурна. Directions API-аас road route ирсэн бол түүгээр (замыг
+  /// дагасан), эс бол origin→dest шулуун шугамаар fallback хийнэ.
+  Set<Polyline> _buildPolylines(_Segment? segment) {
+    if (segment == null) return {};
+
+    // _routePoints-ийг унших нь энэ Obx-ийг reactive болгоно - зам ирэхэд
+    // polyline дахин зурагдана.
+    final points = _routePoints.isNotEmpty
+        ? _routePoints.toList()
+        : [segment.origin, segment.dest];
+
+    return {
+      Polyline(
+        polylineId: PolylineId(segment.id),
+        points: points,
+        color: segment.color,
+        width: 4,
+      ),
+    };
+  }
+}
+
+/// Идэвхтэй замын segment (origin, dest, өнгө, id).
+class _Segment {
+  final String id;
+  final LatLng origin;
+  final LatLng dest;
+  final Color color;
+
+  _Segment({
+    required this.id,
+    required this.origin,
+    required this.dest,
+    required this.color,
+  });
 }

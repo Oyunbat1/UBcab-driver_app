@@ -17,7 +17,7 @@ class MapView extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          'Map',
+          'Газрын зураг',
           style: TextStyle(color: AppTheme.textPrimary, fontSize: 16),
         ),
         leading: IconButton(
@@ -50,7 +50,7 @@ class MapView extends StatelessWidget {
                 ),
                 child: Text(
                   pos == null
-                      ? 'Locating...'
+                      ? 'Байршил тогтоож байна...'
                       : 'Lat: ${pos.latitude.toStringAsFixed(4)}  ·  Lon: ${pos.longitude.toStringAsFixed(4)}',
                   style: const TextStyle(fontSize: 13),
                 ),

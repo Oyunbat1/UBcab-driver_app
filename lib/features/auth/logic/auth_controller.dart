@@ -44,7 +44,7 @@ class AuthController extends GetxController {
       },
       onError: (error) {
         state.isLoading.value = false;
-        Get.snackbar('Error', error);
+        Get.snackbar('Алдаа', error);
       },
     );
   }
@@ -74,7 +74,7 @@ class AuthController extends GetxController {
       Get.offAllNamed(AppRoutes.home);
     } catch (e) {
       state.isLoading.value = false;
-      Get.snackbar('Error', 'Invalid OTP code');
+      Get.snackbar('Алдаа', 'OTP код буруу байна');
     }
   }
 
